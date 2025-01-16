@@ -11,7 +11,7 @@
  */
 
 import {Checkbox, CheckboxContext} from '../';
-import {fireEvent, pointerMap, render} from '@react-spectrum/test-utils';
+import {fireEvent, pointerMap, render} from '@react-spectrum/test-utils-internal';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
@@ -37,6 +37,7 @@ describe('Checkbox', () => {
     let {getByRole} =  render(<Checkbox data-foo="bar">Test</Checkbox>);
     let checkbox = getByRole('checkbox').closest('label');
     expect(checkbox).toHaveAttribute('data-foo', 'bar');
+    expect(getByRole('checkbox')).not.toHaveAttribute('data-foo', 'bar');
   });
 
   it('should support slot', () => {
