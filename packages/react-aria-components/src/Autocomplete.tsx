@@ -15,14 +15,14 @@ import {AutocompleteState, useAutocompleteState} from '@react-stately/autocomple
 import {InputContext} from './Input';
 import {mergeProps} from '@react-aria/utils';
 import {Provider, removeDataAttributes, SlotProps, SlottedContextValue, useSlottedContext} from './utils';
-import React, {createContext, RefObject, useRef} from 'react';
+import React, {createContext, ReactNode, RefObject, useRef} from 'react';
 import {SearchFieldContext} from './SearchField';
 import {TextFieldContext} from './TextField';
 
 export interface AutocompleteProps extends AriaAutocompleteProps, SlotProps {}
 
 interface InternalAutocompleteContextValue {
-  filterFn?: (nodeTextValue: string) => boolean,
+  filter?: (nodeTextValue: string) => boolean,
   collectionProps: CollectionOptions,
   collectionRef: RefObject<HTMLElement | null>
 }
@@ -34,12 +34,12 @@ export const AutocompleteStateContext = createContext<AutocompleteState | null>(
 export const UNSTABLE_InternalAutocompleteContext = createContext<InternalAutocompleteContextValue | null>(null);
 
 /**
- * An autocomplete combines a text input with a menu, allowing users to filter a list of options to items matching a query.
+ * An autocomplete combines a TextField or SearchField with a Menu or ListBox, allowing users to search or filter a list of suggestions.
  */
-export function Autocomplete(props: AutocompleteProps) {
+export function Autocomplete(props: AutocompleteProps): ReactNode {
   let ctx = useSlottedContext(AutocompleteContext, props.slot);
   props = mergeProps(ctx, props);
-  let {filter} = props;
+  let {filter, disableAutoFocusFirst} = props;
   let state = useAutocompleteState(props);
   let inputRef = useRef<HTMLInputElement | null>(null);
   let collectionRef = useRef<HTMLElement>(null);
@@ -47,10 +47,11 @@ export function Autocomplete(props: AutocompleteProps) {
     textFieldProps,
     collectionProps,
     collectionRef: mergedCollectionRef,
-    filterFn
+    filter: filterFn
   } = useAutocomplete({
     ...removeDataAttributes(props),
     filter,
+    disableAutoFocusFirst,
     inputRef,
     collectionRef
   }, state);
@@ -63,7 +64,7 @@ export function Autocomplete(props: AutocompleteProps) {
         [TextFieldContext, textFieldProps],
         [InputContext, {ref: inputRef}],
         [UNSTABLE_InternalAutocompleteContext, {
-          filterFn,
+          filter: filterFn,
           collectionProps,
           collectionRef: mergedCollectionRef
         }]
